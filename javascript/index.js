@@ -1,27 +1,29 @@
+let selectedTimeZone = null;
+
 function updateTime() {
-  let cities = document.querySelectorAll(".city");
-  if (cities) {
-    cities.forEach((city) => {
-      let cityTimeZone = city.dataset.timezone;
-      let date = moment().tz(cityTimeZone).format("MMMM Do YYYY");
-      let time = moment().tz(cityTimeZone).format("h:mm:ss A");
+  document.querySelectorAll(".city").forEach((city) => {
+    let cityTimeZone = city.dataset.timezone;
+    let date = moment().tz(cityTimeZone).format("MMMM Do YYYY");
+    let time = moment().tz(cityTimeZone).format("h:mm:ss A");
 
-      let updateTime = city.querySelector(".time");
-      let updateDate = city.querySelector(".date");
+    city.querySelector(".time").innerHTML = time;
+    city.querySelector(".date").innerHTML = date;
+  });
 
-      updateTime.innerHTML = time;
-      updateDate.innerHTML = date;
-    });
+  if (selectedTimeZone) {
+    updateCity();
   }
 }
 
-function updateCity(event) {
-  let cityTimeZone = event.target.value;
-  if (cityTimeZone === "current") {
-    cityTimeZone = moment.tz.guess();
-  }
+function updateCity() {
+  if (!selectedTimeZone) return;
+
+  let cityTimeZone =
+    selectedTimeZone === "current" ? moment.tz.guess() : selectedTimeZone;
+
   let cityTime = moment().tz(cityTimeZone);
-  let cityName = cityTimeZone.replace("_", " ").split("/")[1];
+  let cityName = cityTimeZone.split("/")[1];
+
   let citiesElement = document.querySelector("#cities");
   citiesElement.innerHTML = `  
   <div class="selected-city">
@@ -41,4 +43,8 @@ updateTime();
 setInterval(updateTime, 1000);
 
 let citySelectElement = document.querySelector("#city");
-citySelectElement.addEventListener("change", updateCity);
+citySelectElement.addEventListener("change", function (event) {
+  selectedTimeZone = event.target.value;
+
+  updateCity();
+});
